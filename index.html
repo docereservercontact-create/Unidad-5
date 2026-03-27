@@ -1,175 +1,174 @@
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Examen Unidad 5 - Evolución</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
+<title>Examen Unidad 5 - Biología</title>
 <style>
-body{font-family:Arial;background:#eef3f8;margin:0}
-.container{max-width:900px;margin:auto;background:white;padding:20px;margin-top:30px;border-radius:10px}
-h1{color:#0d47a1}
-button{background:#0d47a1;color:white;padding:10px;border:none;border-radius:5px;margin:5px;cursor:pointer}
-.timer{font-size:20px;color:#b71c1c;font-weight:bold}
-.question{margin:20px 0}
-.hidden{display:none}
+body { font-family: Arial; background:#121212; color:white; text-align:center; }
+.container { max-width:800px; margin:auto; }
+button { padding:10px; margin-top:10px; }
+.hidden { display:none; }
+.question { margin:20px 0; }
+.timer { font-size:20px; color:#00ffcc; }
 </style>
 </head>
 
 <body>
+<div class="container">
 
-<div class="container" id="inicio">
-<h1>Examen Unidad 5 - Evolución</h1>
-<p>Nombre:</p><input type="text" id="nombre">
-<p>Número de cuenta:</p><input type="text" id="cuenta"><br><br>
-<button onclick="iniciar()">Comenzar</button>
+<h1>Examen Unidad 5</h1>
+
+<div id="inicio">
+<input type="text" id="nombre" placeholder="Nombre"><br><br>
+<input type="text" id="cuenta" placeholder="Número de cuenta"><br><br>
+<button onclick="iniciar()">Iniciar examen</button>
 </div>
 
-<div class="container hidden" id="examen">
-<div class="timer" id="timer"></div>
-<div id="pregunta"></div>
-<button onclick="anterior()">Anterior</button>
-<button onclick="siguiente()">Siguiente</button>
-<button onclick="finalizar()">Finalizar</button>
+<div id="quiz" class="hidden">
+<div class="timer" id="timer">01:05</div>
+<form id="formulario"></form>
 </div>
 
-<div class="container hidden" id="resultado"></div>
+<div id="resultado" class="hidden">
+<h2>Resultado</h2>
+<p id="calificacion"></p>
+<button onclick="descargarPDF()">Descargar PDF</button>
+</div>
+
+</div>
 
 <script>
-
 const preguntas = [
+{q:"La teoría quimiosintética propone:", o:["Organismos complejos","Evolución química","ADN previo","Seres vivos"], a:1},
+{q:"Atmósfera primitiva:", o:["Oxígeno","Reductora","Actual","Neutra"], a:1},
+{q:"Miller-Urey produjo:", o:["Células","Aminoácidos","Tejidos","ADN"], a:1},
+{q:"Coacervados:", o:["Células","Precursores","Órganos","Genes"], a:1},
+{q:"Energía primitiva:", o:["Electricidad","Clorofila","Agua","Sal"], a:0},
+{q:"Endosimbiosis explica:", o:["Fósiles","Organelos","Mutaciones","Clima"], a:1},
+{q:"Mitocondria origen:", o:["Núcleo","Bacteria","Virus","Planta"], a:1},
+{q:"Mitocondria tiene:", o:["Nada","ADN","Clorofila","Membrana simple"], a:1},
+{q:"Evolución química:", o:["Especies","Moléculas","Clima","Células"], a:1},
+{q:"Síntesis abiótica:", o:["Vida previa","Sin vida","Mutación","Clonación"], a:1},
 
-/* ORIGEN DE LA VIDA */
-{q:"La teoría quimiosintética propone que la vida surgió a partir de:",o:["Seres vivos","Materia inorgánica","Clones","Virus"],a:1},
-{q:"La atmósfera primitiva era:",o:["Oxigenada","Reductora","Neutra","Artificial"],a:1},
-{q:"El experimento de Miller-Urey simuló:",o:["Clima actual","Condiciones primitivas","Genética","Clonación"],a:1},
-{q:"Las primeras moléculas fueron:",o:["Proteínas","Orgánicas simples","ADN completo","Virus"],a:1},
-{q:"Coacervados son:",o:["Células","Agregados químicos","Animales","Hongos"],a:1},
+{q:"Lamarck:", o:["Selección","Uso y desuso","ADN","Clonación"], a:1},
+{q:"Ejemplo Lamarck:", o:["Selección","Cuello jirafa","Mutación","Deriva"], a:1},
+{q:"Error Lamarck:", o:["Ambiente","Herencia adquirida","Fósiles","Genes"], a:1},
+{q:"Darwin:", o:["Uso","Selección natural","Mutación","Clonación"], a:1},
+{q:"Selección actúa en:", o:["ADN","Fenotipo","Genes","Proteínas"], a:1},
+{q:"Sobrevive:", o:["Grande","Adaptado","Rápido","Fuerte"], a:1},
+{q:"Variabilidad:", o:["Reduce","Permite adaptación","Elimina","Clona"], a:1},
+{q:"Teoría sintética:", o:["Lamarck","Darwin+genética","Clima","Fósiles"], a:1},
+{q:"Mutación:", o:["Cambio ADN","Ambiente","Clima","Selección"], a:0},
+{q:"Deriva genética:", o:["Selección","Azar","Uso","Adaptación"], a:1},
 
-{q:"Margulis propuso:",o:["Mutación","Endosimbiosis","Uso y desuso","Clonación"],a:1},
-{q:"Las mitocondrias provienen de:",o:["Virus","Bacterias","Hongos","Plantas"],a:1},
-{q:"Cloroplastos derivan de:",o:["Cianobacterias","Virus","Hongos","Animales"],a:0},
-{q:"Endosimbiosis implica:",o:["Fusión celular","Depredación","Clonación","Mutación"],a:0},
-{q:"Eucariotas surgieron de:",o:["Procariotas","Animales","Hongos","Plantas"],a:0},
+{q:"Flujo génico:", o:["Mutación","Migración genes","Clima","Clonación"], a:1},
+{q:"Especiación:", o:["Adaptación","Nueva especie","Mutación","Reproducción"], a:1},
+{q:"Aislamiento:", o:["Igualdad","Diferenciación","Clonación","Mutación"], a:1},
+{q:"Selección direccional:", o:["Promedio","Extremos","Igual","Estable"], a:1},
+{q:"Evolución ocurre en:", o:["Individuo","Población","Órgano","Célula"], a:1},
 
-/* TEORÍAS EVOLUTIVAS */
-{q:"Lamarck propuso:",o:["Selección natural","Uso y desuso","Mutación genética","Clonación"],a:1},
-{q:"Caracteres adquiridos se:",o:["Pierden","Heredan","Ignoran","Clonan"],a:1},
-{q:"Darwin propuso:",o:["Mutación","Selección natural","Uso","Clonación"],a:1},
-{q:"La selección favorece:",o:["Débiles","Adaptados","Todos igual","Clones"],a:1},
-{q:"Wallace coincidió con:",o:["Lamarck","Darwin","Mendel","Margulis"],a:1},
+{q:"Fósiles:", o:["ADN","Historia","Futuro","Mutación"], a:1},
+{q:"Fosilización:", o:["Destruye","Conserva","Mutación","Clona"], a:1},
+{q:"Fósil transición:", o:["Extinción","Cambio","Mutación","Clonación"], a:1},
+{q:"Anatomía comparada:", o:["ADN","Estructuras","Clima","Mutación"], a:1},
+{q:"Homólogos:", o:["Función","Origen","Mutación","Clonación"], a:1},
 
-{q:"La teoría sintética integra:",o:["Religión","Genética","Clima","Azar"],a:1},
-{q:"Mutación genera:",o:["Estabilidad","Variabilidad","Clonación","Orden"],a:1},
-{q:"La evolución es:",o:["Individual","Poblacional","Instantánea","Artificial"],a:1},
-{q:"La adaptación depende de:",o:["Clima","Ambiente","Mutación","Clonación"],a:1},
-{q:"Selección natural actúa sobre:",o:["Genes","Fenotipo","Clima","Azar"],a:1},
+{q:"Análogos:", o:["Origen","Función","ADN","Mutación"], a:1},
+{q:"Convergencia:", o:["Diferencias","Similitud","Mutación","Clonación"], a:1},
+{q:"Vestigial:", o:["Activo","Reducido","Mutado","Artificial"], a:1},
+{q:"Embriología:", o:["Adulto","Desarrollo","ADN","Clima"], a:1},
+{q:"Embrión similar:", o:["Mutación","Origen común","Clonación","Adaptación"], a:1},
 
-/* EVIDENCIAS */
-{q:"Fósiles indican:",o:["Clima","Historia","Mutación","Clonación"],a:1},
-{q:"Estratos muestran:",o:["Tiempo","ADN","Mutación","Clonación"],a:0},
-{q:"Homología implica:",o:["Función","Origen común","Mutación","Clonación"],a:1},
-{q:"Analogía implica:",o:["Origen","Función","Mutación","Clonación"],a:1},
-{q:"Vestigial indica:",o:["Uso","Evolución","Mutación","Clonación"],a:1},
+{q:"Genética:", o:["Clima","ADN","Fósil","Órgano"], a:1},
+{q:"Código genético:", o:["Variable","Universal","Artificial","Nulo"], a:1},
+{q:"Biogeografía:", o:["ADN","Distribución","Mutación","Órgano"], a:1},
+{q:"Aislamiento geográfico:", o:["Igual","Especiación","Clonación","Mutación"], a:1},
+{q:"Evidencias apoyan:", o:["Mutación","Evolución","Clonación","Uso"], a:1},
 
-{q:"Embriología compara:",o:["ADN","Desarrollo","Clima","Mutación"],a:1},
-{q:"Similitud embrionaria:",o:["Diferencia","Origen común","Mutación","Clonación"],a:1},
-{q:"Genética usa:",o:["ADN","Clima","Fósiles","Órganos"],a:0},
-{q:"ADN similar implica:",o:["Aislamiento","Relación","Mutación","Clonación"],a:1},
-{q:"Biogeografía estudia:",o:["ADN","Distribución","Fósiles","Clima"],a:1},
+{q:"Taxonomía:", o:["Clasifica","Mutación","ADN","Clima"], a:0},
+{q:"Binomial:", o:["Uno","Dos","Tres","Ninguno"], a:1},
+{q:"Criterio:", o:["Color","Tipo celular","Tamaño","Forma"], a:1},
+{q:"Procariota:", o:["Núcleo","Sin núcleo","Tejido","Multi"], a:1},
+{q:"Autótrofo:", o:["Consume","Produce","Nada","Mutación"], a:1},
 
-/* TAXONOMÍA */
-{q:"Taxonomía clasifica:",o:["Climas","Seres vivos","Mutaciones","Clones"],a:1},
-{q:"Procariotas carecen de:",o:["ADN","Núcleo","Membrana","Proteína"],a:1},
-{q:"Eucariotas tienen:",o:["Sin núcleo","Núcleo","Mutación","Clonación"],a:1},
-{q:"Autótrofos producen:",o:["Nada","Alimento","Mutación","Clonación"],a:1},
-{q:"Heterótrofos obtienen:",o:["Luz","Alimento","Mutación","Clonación"],a:1},
-
-{q:"Monera incluye:",o:["Hongos","Bacterias","Animales","Plantas"],a:1},
-{q:"Protista es:",o:["Complejo","Simple eucariota","Procariota","Animal"],a:1},
-{q:"Fungi son:",o:["Autótrofos","Heterótrofos","Procariotas","Clones"],a:1},
-{q:"Plantas hacen:",o:["Respiración","Fotosíntesis","Mutación","Clonación"],a:1},
-{q:"Animales son:",o:["Autótrofos","Heterótrofos","Procariotas","Clones"],a:1},
-
-/* EXTRA PARA COMPLETAR 100 */
-...Array.from({length:60}, (_,i)=>({
-q:`Pregunta avanzada ${i+41}: concepto evolutivo aplicado`,
-o:["Opción A","Opción B","Opción C","Opción D"],
-a:1
-}))
-
+{q:"Monera:", o:["Animal","Bacteria","Planta","Hongo"], a:1},
+{q:"Protista:", o:["Procariota","Euc simple","Complejo","Animal"], a:1},
+{q:"Fungi:", o:["Foto","Absorción","Procariota","Clonación"], a:1},
+{q:"Plantae:", o:["Digestión","Fotosíntesis","Mutación","Clonación"], a:1},
+{q:"Animalia:", o:["Auto","Hetero","Cloroplasto","Procariota"], a:1}
 ];
 
-let actual=0,respuestas=[],tiempos=[];
-let inicioPregunta=0,totalTiempo=100*65,interval,inicioEx;
+let actual = 0;
+let respuestas = [];
+let tiempo = 65;
+let intervalo;
 
 function iniciar(){
-inicioEx=Date.now();
-inicioPregunta=Date.now();
 document.getElementById("inicio").classList.add("hidden");
-document.getElementById("examen").classList.remove("hidden");
-timer();mostrar();
+document.getElementById("quiz").classList.remove("hidden");
+mostrarPregunta();
 }
 
-function timer(){
-interval=setInterval(()=>{
-totalTiempo--;
-let h=Math.floor(totalTiempo/3600);
-let m=Math.floor((totalTiempo%3600)/60);
-let s=totalTiempo%60;
-document.getElementById("timer").innerText=
-`${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-if(totalTiempo<=0) finalizar();
+function mostrarPregunta(){
+if(actual>=preguntas.length){ terminar(); return; }
+
+let p = preguntas[actual];
+let html = "<div class='question'><h3>"+(actual+1)+". "+p.q+"</h3>";
+
+p.o.forEach((op,i)=>{
+html += `<label><input type="radio" name="r" value="${i}"> ${op}</label><br>`;
+});
+
+html += "<button type='button' onclick='siguiente()'>Siguiente</button></div>";
+
+document.getElementById("formulario").innerHTML = html;
+
+tiempo=65;
+actualizarTimer();
+
+clearInterval(intervalo);
+intervalo = setInterval(()=>{
+tiempo--;
+actualizarTimer();
+if(tiempo<=0) siguiente();
 },1000);
 }
 
-function mostrar(){
-let p=preguntas[actual];
-let html=`<div class='question'><h3>${actual+1}. ${p.q}</h3>`;
-p.o.forEach((op,i)=>{
-html+=`<label><input type="radio" name="op" value="${i}"> ${op}</label><br>`;
-});
-html+="</div>";
-document.getElementById("pregunta").innerHTML=html;
-inicioPregunta=Date.now();
+function actualizarTimer(){
+let m = Math.floor(tiempo/60);
+let s = tiempo%60;
+document.getElementById("timer").innerText =
+(m<10?"0":"")+m+":"+(s<10?"0":"")+s;
 }
 
-function guardar(){
-let sel=document.querySelector('input[name="op"]:checked');
-if(sel) respuestas[actual]=parseInt(sel.value);
-tiempos[actual]=(Date.now()-inicioPregunta)/1000;
+function siguiente(){
+let seleccion = document.querySelector('input[name="r"]:checked');
+respuestas.push(seleccion ? parseInt(seleccion.value) : -1);
+actual++;
+mostrarPregunta();
 }
 
-function siguiente(){guardar();if(actual<preguntas.length-1){actual++;mostrar();}}
-function anterior(){guardar();if(actual>0){actual--;mostrar();}}
-
-function finalizar(){
-clearInterval(interval);guardar();
-let correctas=0;
-preguntas.forEach((p,i)=>{if(respuestas[i]==p.a)correctas++;});
-let tiempoTotal=(Date.now()-inicioEx)/1000;
-
-let res=`<h2>Resultados</h2>
-<p>Nombre: ${nombre.value}</p>
-<p>Cuenta: ${cuenta.value}</p>
-<p>Calificación: ${(correctas/preguntas.length*10).toFixed(2)}</p>
-<p>Tiempo total: ${tiempoTotal.toFixed(2)} s</p>`;
-
-res+=`<button onclick="pdf()">Descargar PDF</button>`;
-
-document.getElementById("examen").classList.add("hidden");
+function terminar(){
+clearInterval(intervalo);
+document.getElementById("quiz").classList.add("hidden");
 document.getElementById("resultado").classList.remove("hidden");
-document.getElementById("resultado").innerHTML=res;
+
+let correctas = 0;
+preguntas.forEach((p,i)=>{
+if(p.a === respuestas[i]) correctas++;
+});
+
+let cal = (correctas/preguntas.length)*10;
+document.getElementById("calificacion").innerText =
+"Calificación: "+cal.toFixed(2)+" / 10";
 }
 
-function pdf(){
-const {jsPDF}=window.jspdf;
-let doc=new jsPDF();
-doc.text(document.getElementById("resultado").innerText,10,10);
-doc.save("resultado_unidad5.pdf");
+function descargarPDF(){
+window.print();
 }
-
 </script>
 
 </body>
 </html>
+```
